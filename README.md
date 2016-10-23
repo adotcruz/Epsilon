@@ -11,7 +11,7 @@ We built the front-end of the app using Bootstrap. The actual algorithm was impl
 # Challenges We ran into
 The original algorithm was implemented in Python. We initially tried to connect the Javascript through an AJAX interface. However, this was deemed not feasible after some time, so the algorithm was rewritten in Javascript. There were also some issues dealing with asynchronous calls to the Google Calendar API.
 
-# Accomplishments that we're proud ofsdasd
+# Accomplishments that we're proud of
 Getting a working app in 36 hours.
 
 # What we learned
