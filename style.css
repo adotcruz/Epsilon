@@ -1,0 +1,67 @@
+body{
+	/**padding: 60px 50px;**/
+	font-family: Roboto-Black, sans-serif;
+	font-weight: 300;
+	font-size: 2em;
+	position: relative;
+	align-items: center;
+}
+h1, h2, h3, h4, h5, h6{
+	font-family: ADAM.CG PRO, sans-serif;
+	font-weight: 100;
+	margin: 0;
+	color: #262626;
+}
+
+#title {
+	color: black;
+	text-align: center;
+	padding-bottom: 15px;
+	padding-top: 15px;
+}
+
+.htitle {
+	text-align: center;
+	padding-bottom: 20px;
+}
+
+#form{
+	background-color: #ccffff;
+	margin-top: 30px;
+	padding-bottom: 30px;
+	padding-top: 30px;
+}
+
+#user-subject {
+	width: 100%;
+}
+
+.top {
+    border-top-left-radius:10px;
+    border-top-right-radius:10px;
+}
+
+.bottom {
+    border-bottom-left-radius:10px;
+    border-bottom-right-radius:10px;
+}
+
+/* This is for the calendar container */
+#calendar{
+	background-color: #ccffff;
+	margin-top: 30px;
+}
+
+#calendar-title{
+	text-align: center;
+
+}
+
+.panel{
+	position: center;
+}
+
+.container{
+	padding-top: 15px;
+}
+
