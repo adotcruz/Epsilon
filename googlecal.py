@@ -1,8 +1,6 @@
+import sys, time, json
 from flask import Flask, jsonify
-import sys
 from pprint import pprint
-import time 
-import json
 
 example = [(1477090800, 1477242000), (1477234800, 1477238400), \
            (1477263600, 1477263600), (1477265400, 1477270800), \
@@ -10,8 +8,7 @@ example = [(1477090800, 1477242000), (1477234800, 1477238400), \
 		   (1477279800, 1477279800), (1477335600, 1477340100), \
 		   (1477346400, 1477350900), (1477355400, 1477359000)]
 
-# Half hour time slots
-slot_size = 1800 
+
 
 def main(eventslist, neweventlen, deadline):
 	'''
@@ -23,9 +20,12 @@ def main(eventslist, neweventlen, deadline):
 		All time should be in number of milliseconds since Jan 1, 1970 
 		00:00:00 UTC 
 	Returns:
-		The start and end time of the new event
+		The start and end times of the new event
 	'''
 	""" Ver1: try to find a single chunk of time that works """
+
+	# Half hour time slots
+	slot_size = 1800 
 
 	# Current epoch time
 	current_time = int(time.time()) 
@@ -51,7 +51,6 @@ def main(eventslist, neweventlen, deadline):
 	# Loop through time slots between now and deadline to find
 	# possible time slots
 	avail_time_slots = []
-
 	for i in range(current_time, deadline, slot_size):
 		if i not in unavail_time_slots:
 			avail_time_slots.append(i)
@@ -63,7 +62,6 @@ def main(eventslist, neweventlen, deadline):
 	# TODO: Prioritize the time frame 10am - 10pm
 	# TODO: maybe change to generator
 	for time in avail_time_slots:
-		#return json.dumps(time, time + time_slots_needed * slot_size)
 		return jsonify("start_time": time, "end_time": time_slots_needed * slot_size)
 
 '''
@@ -77,4 +75,4 @@ app = Flask(__name__)
 def generateSchedule():
 	if not request.json:
 		abort(400)
-	return main()# hackharvard---cool-name-pending
+	return main()
