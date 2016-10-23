@@ -9,58 +9,66 @@
              */
             var CLIENT_ID = '782686039876-2u47g7r30iu91uhrfqd129jrk93urbht.apps.googleusercontent.com';
             var SCOPES = ["https://www.googleapis.com/auth/calendar"];
+            function main(dataobj) {
+                var deadline = new Date(2016, 9, 24, 23, 00, 00, 0);
+                // console.log(deadline);
+                getAllUpcomingEventDateTimes(deadline, function(response) {
+                    console.dir(response);
+                });
+            }
             /**
              * Check if current user has authorized this application.
              */
-          function checkAuth() {
-        gapi.auth.authorize(
-          {
-            'client_id': CLIENT_ID,
-            'scope': SCOPES.join(' '),
-            'immediate': true
-          }, handleAuthResult);
-      }
-
-      /**
-       * Handle response from authorization server.
-       *
-       * @param {Object} authResult Authorization result.
-       */
-      function handleAuthResult(authResult) {
-        var authorizeDiv = document.getElementById('authorize-div');
-        if (authResult && !authResult.error) {
-          // Hide auth UI, then load client library.
-          authorizeDiv.style.display = 'none';
-          loadCalendarApi();
-        } else {
-          // Show auth UI, allowing the user to initiate authorization by
-          // clicking authorize button.
-          authorizeDiv.style.display = 'inline';
-        }
-      }
-
-      /**
-       * Initiate auth flow in response to user clicking authorize button.
-       *
-       * @param {Event} event Button click event.
-       */
-      function handleAuthClick(event) {
-        gapi.auth.authorize(
-          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
-          handleAuthResult);
-        return false;
-      }
-            function main() {
-                var FUCKASYNC = getAllUpcomingEventDateTimes(function() {
-                    console.dir(FUCKASYNC);
-                });
+            function checkAuth() {
+                gapi.auth.authorize({
+                    'client_id': CLIENT_ID,
+                    'scope': SCOPES.join(' '),
+                    'immediate': true
+                }, 
+                handleAuthResult);
             }
+
+            /**
+             * Handle response from authorization server.
+             *
+             * @param {Object} authResult Authorization result.
+             */
+            function handleAuthResult(authResult) {
+                var authorizeDiv = document.getElementById('authorize-div');
+                if (authResult && !authResult.error) {
+                // Hide auth UI, then load client library.
+                authorizeDiv.style.display = 'none';
+                loadCalendarApi();
+                } else {
+                // Show auth UI, allowing the user to initiate authorization by
+                // clicking authorize button.
+                authorizeDiv.style.display = 'inline';
+                }
+            }
+
+            /**
+             * Initiate auth flow in response to user clicking authorize button.
+             *
+             * @param {Event} event Button click event.
+             */
+            function handleAuthClick(event) {
+                gapi.auth.authorize(
+                    {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+                handleAuthResult);
+                return false;
+            }
+        
+            
             function loadCalendarApi() {
                 gapi.client.load('calendar', 'v3', main);
             }
             
             function convertToAlgoDateTime(givenString) {
-                return Date().parse(givenString);
+                return Date.parse(givenString);
+            }
+            function convertToAPIDateTime(given) {
+
+                return given.toISOString();
             }
             /**
              * Print the summary and start datetime/date of the next ten events in
@@ -68,6 +76,7 @@
              * appropriate message is printed.
              */
             function listUpcomingEventsInACalendar(calendarId, deadline, callback) {
+                console.log(deadline);
                 var request = gapi.client.calendar.events.list({
                     'calendarId': calendarId,
                     'timeMin': (new Date()).toISOString(),
@@ -75,29 +84,75 @@
                     'singleEvents': true,
                     'maxResults': 50,
                     'orderBy': 'startTime',
-                    'timeMax': (deadline).toISOString()});
+                    'timeMax': deadline.toISOString()});
                 request.execute(function(resp) {
                     var events = resp.items;
                     callback(events);
+                
+                    var eventtimes = [];
+                    for (i = 0; i < events.length; i++) {
+                        var event = events[i];
+                        var when1 = Date.parse(event.start.dateTime) * 0.001;
+                        var when2 = Date.parse(event.end.dateTime) * 0.001;
+                        if (!when1) {
+                            when1 = Date.parse(event.start.date) * 0.001;
+                        }
+                        if (!when2) {
+                            when2 = Date.parse(event.end.date) * 0.001;
+                        }
+                        
+                        eventtimes.push({"start_time": when1, "end_time": when2});
+                    }
+                    console.log(eventtimes);
+                    var duration = 7200;
+                    algorithm(eventtimes, duration, deadline);
                 });
-                var eventtimes = [];
-                for (i = 0; i < events.length; i++) {
-                    var event = events[i];
-                    var when1 = Date.parse(event.start.dateTime) * 0.001;
-                    var when2 = Date.parse(event.end.dateTime) * 0.001;
-                    if (!when1) {
-                        when1 = Date.parse(event.start.date) * 0.001;
-                    }
-                    if (!when2) {
-                        when2 = Date.parse(event.end.date) * 0.001;
-                    }
-                    
-                    eventtimes.push({"start_time": when1, "end_time": when2});
-                }
-                console.log(eventtimes)
+                
                 
             }
-            function getAllUpcomingEventDateTimes(deadline=(new Date(2016, 9, 24, 23, 00, 00, 0))) {
+            function algorithm(eventtimes, duration, deadline) {
+                //console.log(eventtimes);
+                var slot_size = 1800; //Half hour time slots
+                var current_time = new Date();
+                current_time = Date.parse(current_time) * 0.001;
+                //console.log(current_time);
+                current_time += slot_size - (current_time % slot_size);
+                time_slots_needed = duration / 1800;
+                unavail_time_slots = [];
+
+                //console.log(eventtimes.length);
+                for (var i = 0; i < eventtimes.length; i++) {
+                    var start_time = eventtimes[i]['start_time'];
+                    var end_time   = eventtimes[i]['end_time'];
+                    start_time -= start_time % slot_size;
+                    end_time   += slot_size - (end_time % slot_size);
+                    console.log(start_time);
+                    console.log(end_time);
+                    for (var j = start_time; j < end_time; j += slot_size) {
+                        unavail_time_slots.push(j);
+                    }
+                }
+                
+                //console.log(unavail_time_slots);
+                
+                avail_time_slots = [];
+                for (var i = current_time; i < deadline; i += slot_size) {
+                    if (! unavail_time_slots.includes(i)) {
+                        avail_time_slots.push(i);
+                    }
+                }
+                //console.log(avail_time_slots);
+                results = [];
+                // IMPORTANT: assuming there are more available time slots than
+                // needed
+                for (var i = 0; i < time_slots_needed; i++) {
+                    results.push(avail_time_slots[i]);
+                }
+                //console.log(results);
+                
+            }
+
+            function getAllUpcomingEventDateTimes(deadline, callback) {
                 var request = gapi.client.calendar.calendarList.list();
                 request.execute(function(resp) {
                     calendars = resp.items;
@@ -108,8 +163,8 @@
                                 thisEvent = calendarEvents[j];
                                 dateTimesReturn.push({'start':thisEvent.start.dateTime, 'finish':thisEvent.end.dateTime});
                         }
-                            dateTimesReturn.push({'start': convertToAPIDateTime(Date(2016, 9, 24, 23, 00, 00, 0)), 'finish':convertToAPIDateTime(Date(2016, 9, 24, 23, 00, 00, 0))});
-                            return dateTimesReturn;
+                            dateTimesReturn.push({'start': convertToAPIDateTime(new Date(2016, 9, 24, 23, 00, 00, 0)), 'finish':convertToAPIDateTime(new Date(2016, 9, 24, 23, 00, 00, 0))});
+                            callback(dateTimesReturn);
                         });
                     /* start of nesting, otherwise this would be outside of this*/
                 }

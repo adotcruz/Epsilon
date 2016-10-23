@@ -1,6 +1,8 @@
-import sys, time, json
-from flask import Flask, jsonify, abort
-from pprint import pprint
+import sys
+import time
+import json
+from flask import Flask, jsonify, abort, request
+#from pprint import pprint
 
 example = [(1477090800, 1477242000), (1477234800, 1477238400), \
            (1477263600, 1477263600), (1477265400, 1477270800), \
@@ -28,10 +30,11 @@ def main(eventslist, neweventlen, deadline):
     slot_size = 1800 
 
     # Current epoch time
-    current_time = int(time.time()) 
+    current_time = int(time.time())
 
     # Round current time to nearest half hour in the future
-    current_time += slot_size - (int(time.time()) % slot_size) 
+    current_time = slot_size - (int(time.time()) % slot_size) 
+    print current_time
 
     # Duration of the new event in terms of number of slots it takes
     time_slots_needed = neweventlen / 1800 
@@ -44,7 +47,7 @@ def main(eventslist, neweventlen, deadline):
         if (start % slot_size != 0):
             start -= start % slot_size
         if (end   % slot_size != 0):
-            end   += slot_size (end % slot_size)
+            end   += slot_size -(end % slot_size)
         unavail_time_slots = unavail_time_slots | set(range(start, end, slot_size))
 
     
@@ -62,18 +65,29 @@ def main(eventslist, neweventlen, deadline):
     # TODO: Prioritize the time frame 10am - 10pm
     # TODO: maybe change to generator
     for time in avail_time_slots:
-        return jsonify("start_time": time, 
-                       "end_time": time_slots_needed * slot_size)
+        return jsonify({"start_time": time, 
+                       "end_time": time_slots_needed * slot_size})
 
-'''
+
 if __name__ == "__main__":
     deadline = 1477418400 # Oct 25, 2016, 2pm
     duration = 7200 # Two hours
     main(example, duration, deadline)
+
 '''
 app = Flask(__name__)
-@app.route('/generate', methods['GET'])
+@app.route('/generate', methods=['GET'])
 def generateSchedule():
     if not request.json:
         abort(400)
-    return main()
+    events = request.args.get('eventinfo')
+    duration = request.args.get('duration')
+    deadline = request.args.
+
+    #deadline = 1477418400 # Oct 25, 2016, 2pm
+    #duration = 7200 # Two hours
+    return main(events, duration, deadline)
+
+'''
+
+

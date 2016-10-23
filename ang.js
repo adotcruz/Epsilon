@@ -1,3 +1,4 @@
+import 
 var app = angular.module("myapp", []);
 
 app.controller("ListController", ['$scope', function($scope) {
@@ -33,39 +34,39 @@ app.controller("ListController", ['$scope', function($scope) {
             $scope.eventDetails = newDataList;
         };
     
-    $scope.checkAll = function () {
-    	window.alert($scope.selectedAll);
-        if (!$scope.selectedAll) {
-            $scope.selectedAll = true;
-        } else {
-            $scope.selectedAll = false;
-        }
-        angular.forEach($scope.eventDetails, function(eventDetail) {
-            eventDetail.selected = $scope.selectedAll;
-        });
-    };  
-
-    $scope.submit = function(){
-    	var newDataList=[];
-    	$scope.returnDetails = [];
-        $scope.selectedAll = false;
-    	angular.forEach($scope.eventDetails, function(selected){
-            if(selected.selected){
-                newDataList.push({
-                	'ename': selected.ename, 
-                	'eduration': selected.eduration,
-                	'edeadline': selected.edeadline,
-                	'ehdue' : selected.ehdue,
-                	'emdue' : selected.emdue,
-                	'epmdue' : selected.epmdue,
-                });
-                alert(newDataList[0]);
-                alert(newDataList[0].eduration);
+        $scope.checkAll = function () {
+        	window.alert($scope.selectedAll);
+            if (!$scope.selectedAll) {
+                $scope.selectedAll = true;
+            } else {
+                $scope.selectedAll = false;
             }
-        }); 
-        alert(newDataList[1].eduration);
-        $scope.returnDetails = newDataList;
-        $scope.remove();
-    }  
-       
+            angular.forEach($scope.eventDetails, function(eventDetail) {
+                eventDetail.selected = $scope.selectedAll;
+            });
+        };  
+
+        $scope.submit = function(){
+        	var newDataList=[];
+        	$scope.returnDetails = [];
+            $scope.selectedAll = false;
+        	angular.forEach($scope.eventDetails, function(selected){
+                if(selected.selected){
+                    newDataList.push({
+                    	'ename': selected.ename, 
+                    	'eduration': selected.eduration,
+                    	'edeadline': selected.edeadline,
+                    	'ehdue' : selected.ehdue,
+                    	'emdue' : selected.emdue,
+                    	'epmdue' : selected.epmdue,
+                    });
+                    alert(newDataList[0]);
+                    alert(newDataList[0].eduration);
+                }
+            }); 
+            alert(newDataList[1].eduration);
+            $scope.returnDetails = newDataList;
+            $scope.remove();
+        }  
+           
 }]);
