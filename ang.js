@@ -1,7 +1,12 @@
-import 
+
 var app = angular.module("myapp", []);
+var loggedIn = false;
+
+
+
 
 app.controller("ListController", ['$scope', function($scope) {
+
 
     $scope.eventDetails = [];
     $scope.returnDetails = [];
@@ -11,6 +16,8 @@ app.controller("ListController", ['$scope', function($scope) {
     $scope.realHours = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     $scope.am = ["AM", "PM"];
         
+
+
         $scope.addNew = function(eventDetail){
             $scope.eventDetails.push({ 
                 'ename': "", 
@@ -64,8 +71,9 @@ app.controller("ListController", ['$scope', function($scope) {
                     alert(newDataList[0].eduration);
                 }
             }); 
-            alert(newDataList[1].eduration);
             $scope.returnDetails = newDataList;
+            var dataobj = mainFunction(newDataList[0]);
+            console.log(dataobj);
             $scope.remove();
         }  
            

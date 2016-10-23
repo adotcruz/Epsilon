@@ -1,10 +1,4 @@
 
-            // Your Client ID can be retrieved from your project in the Google
-            // Developer Console, https://console.developers.google.com
-            /**
-             * Load Google Calendar client library. List upcoming events
-             * once client library is loaded.
-             */
             var CLIENT_ID = '782686039876-c407p8ak93h96p3jc6g4ffh5ot4t8iuc.apps.googleusercontent.com';
             var SCOPES = ["https://www.googleapis.com/auth/calendar"];
             
