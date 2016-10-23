@@ -3,56 +3,65 @@
         <script type="text/javascript">
             // Your Client ID can be retrieved from your project in the Google
             // Developer Console, https://console.developers.google.com
-
             /**
              * Load Google Calendar client library. List upcoming events
              * once client library is loaded.
              */
             var CLIENT_ID = '782686039876-2u47g7r30iu91uhrfqd129jrk93urbht.apps.googleusercontent.com';
-
             var SCOPES = ["https://www.googleapis.com/auth/calendar"];
-
-
             /**
              * Check if current user has authorized this application.
              */
-            function checkAuth() {
-                gapi.auth.authorize(
-                    {
-                        'client_id': CLIENT_ID,
-                        'scope': SCOPES.join(' '),
-                        'immediate': true
-                    }, handleAuthResult);
-            }
+          function checkAuth() {
+        gapi.auth.authorize(
+          {
+            'client_id': CLIENT_ID,
+            'scope': SCOPES.join(' '),
+            'immediate': true
+          }, handleAuthResult);
+      }
 
-            function handleAuthResult(authResult) {
-                var authorizeDiv = document.getElementById('authorize-div');
-                if (authResult && !authResult.error) {
-                    // Hide auth UI, then load client library.
-                    loadCalendarApi();
-                } else {
-                    gapi.auth.authorize({client_id: CLIENT_ID, scope: SCOPES, immediate: false}, handleAuthResult);
-                }
-            }
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+      function handleAuthResult(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          loadCalendarApi();
+        } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
+        }
+      }
 
-
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+      function handleAuthClick(event) {
+        gapi.auth.authorize(
+          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+          handleAuthResult);
+        return false;
+      }
             function main() {
                 var FUCKASYNC = getAllUpcomingEventDateTimes(function() {
                     console.dir(FUCKASYNC);
                 });
-
             }
-
             function loadCalendarApi() {
                 gapi.client.load('calendar', 'v3', main);
             }
-
             
-
             function convertToAlgoDateTime(givenString) {
                 return Date().parse(givenString);
             }
-
             /**
              * Print the summary and start datetime/date of the next ten events in
              * the authorized user's calendar. If no events are found an
@@ -88,7 +97,6 @@
                 console.log(eventtimes)
                 
             }
-
             function getAllUpcomingEventDateTimes(deadline=(new Date(2016, 9, 24, 23, 00, 00, 0))) {
                 var request = gapi.client.calendar.calendarList.list();
                 request.execute(function(resp) {
@@ -103,11 +111,9 @@
                             dateTimesReturn.push({'start': convertToAPIDateTime(Date(2016, 9, 24, 23, 00, 00, 0)), 'finish':convertToAPIDateTime(Date(2016, 9, 24, 23, 00, 00, 0))});
                             return dateTimesReturn;
                         });
-
                     /* start of nesting, otherwise this would be outside of this*/
                 }
             });
-
                 
                 }
             
@@ -121,7 +127,6 @@
                     }
                 }*/
                 
-
          function parseEvent(incomingEvent, eventName) {
             var event = {
             'summary': eventName,
@@ -136,16 +141,12 @@
             };
             return event;
          }
-
          function insertEvent(parsedEvent) {
             parsedEvent;
             var request = gapi.client.calendar.events.insert({'calendarId': 'primary','resource': parsedEvent});
             request.execute(function(parsedEvent) { 
             });
          }
-
-
-
             
         </script>
         <script src="https://apis.google.com/js/client.js?onload=checkAuth">
