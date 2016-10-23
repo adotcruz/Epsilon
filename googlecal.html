@@ -2,7 +2,7 @@
   	<head>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script type="text/javascript">
-			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+			//$SCRIPT_ROOT = "{{request.googlecal.py}}";
 			// Your Client ID can be retrieved from your project in the Google
 		  	// Developer Console, https://console.developers.google.com
 		  	var CLIENT_ID = '782686039876-c407p8ak93h96p3jc6g4ffh5ot4t8iuc.apps.googleusercontent.com';
@@ -78,60 +78,84 @@
 				  	var events = resp.items;
 				  	//console.log(events);
 				  	appendPre('Upcoming events:');
+				  	var eventtimes = [];
 
 				  	if (events.length > 0) {
 						for (i = 0; i < events.length; i++) {
 					  		var event = events[i];
-					  		var when1 = Date.parse(event.start.dateTime);
-					  		var when2 = Date.parse(event.end.dateTime);
+					  		var when1 = Date.parse(event.start.dateTime) * 0.001;
+					  		var when2 = Date.parse(event.end.dateTime) * 0.001;
 					  		if (!when1) {
-								when1 = Date.parse(event.start.date);
+								when1 = Date.parse(event.start.date) * 0.001;
 					 		}
 					  		if (!when2) {
-								when2 = Date.parse(event.end.date);
+								when2 = Date.parse(event.end.date) * 0.001;
 					  		}
 					 		appendPre(event.summary + ' (' + when1 + ') to (' + when2 + ')');
+					 		eventtimes.push({"start_time": when1, "end_time": when2});
+					 		// examples!
+					 		var duration = 7200;
+					 		// Oct 25, 2016, 2pm
+					 		var deadline = 1477418400;
+					 		
 						}
 				  	} else {
 						appendPre('No upcoming events found.');
 				  	}
+				  	console.log(eventtimes);
+				  	algorithm(eventtimes, duration, deadline);
 				  	
-				  	//sendToPython(events);
-				  	$.get("/generate", function(events) {
-				  		console.log($.parseJSON(events))
-				  	}
-				);
+		  		})
 		  	}
+		  	function algorithm(eventtimes, duration, deadline) {
+		  		//console.log(eventtimes);
+		  		var slot_size = 1800; //Half hour time slots
+		  		var current_time = new Date();
+		  		current_time = Date.parse(current_time) * 0.001;
+		  		//console.log(current_time);
+		  		current_time += slot_size - (current_time % slot_size);
+		  		time_slots_needed = duration / 1800;
+		  		unavail_time_slots = [];
 
-		  	/*
-		  	function sendToPython(coolevents) {
-				console.log("this is sending cool stuff to python");
-				var events = coolevents;
-				$.ajax({
-					type: "GET",
-					url: "/googlecal.py",
-					data: {param: events},
-					success: callbackFunc
-				});
+		  		//console.log(eventtimes.length);
+		  		for (var i = 0; i < eventtimes.length; i++) {
+		  			var start_time = eventtimes[i]['start_time'];
+		  			var end_time   = eventtimes[i]['end_time'];
+		  			start_time -= start_time % slot_size;
+		  			end_time   += slot_size - (end_time % slot_size);
+		  			console.log(start_time);
+		  			console.log(end_time);
+		  			for (var j = start_time; j < end_time; j += slot_size) {
+		  				unavail_time_slots.push(j);
+		  			}
+		  		}
+		  		
+		  		//console.log(unavail_time_slots);
+		  		
+		  		avail_time_slots = [];
+		  		for (var i = current_time; i < deadline; i += slot_size) {
+		  			if (! unavail_time_slots.includes(i)) {
+		  				avail_time_slots.push(i);
+		  			}
+		  		}
+		  		//console.log(avail_time_slots);
+		  		results = [];
+		  		// IMPORTANT: assuming there are more available time slots than
+		  		// needed
+		  		for (var i = 0; i < time_slots_needed; i++) {
+		  			results.push(avail_time_slots[i]);
+		  		}
+		  		//console.log(results);
+		  		
 		  	}
-		  	function callbackFunc(response) {
-				var result = response
-				console.log(result);
-		  	}*/
-		  	
-
-		  	/**
-		     * Append a pre element to the body containing the given message
-		     * as its text node.
-		     *
-		     * @param {string} message Text to be placed in pre element.
-		     */
 
 		  	function appendPre(message) {
 				var pre = document.getElementById('output');
 				var textContent = document.createTextNode(message + '\n');
 				pre.appendChild(textContent);
 		  	} 
+
+
 		</script>
 		<script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
 	</head>
